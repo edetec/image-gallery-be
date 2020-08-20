@@ -10,6 +10,9 @@ flask = "*"
 gunicorn = "*"
 pytest = "*"
 stringify = "*"
+flask-sqlalchemy = "*"
+marshmallow = "*"
+pytest-regressions = "*"
 
 [requires]
 python_version = "3.8"

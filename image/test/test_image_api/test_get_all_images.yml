@@ -1,0 +1,12 @@
+- description: description file 1
+  dimensions: 800x600
+  file_name: file1.jpg
+  format: JPG
+  id: 1
+  thumbnail_name: thumbnail/file1.jpg
+- description: description file 2
+  dimensions: 800x600
+  file_name: file2.jpg
+  format: JPG
+  id: 2
+  thumbnail_name: thumbnail/file2.jpg
