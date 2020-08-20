@@ -10,3 +10,9 @@
   format: JPG
   id: 2
   thumbnail_name: thumbnail/file2.jpg
+- description: description file 3
+  dimensions: 900x600
+  file_name: file3.jpg
+  format: JPG
+  id: 3
+  thumbnail_name: thumbnail/file3.jpg

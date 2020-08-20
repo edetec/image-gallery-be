@@ -1,7 +1,11 @@
+import functools
+import operator
 from http import HTTPStatus
 
 from flask import Blueprint, jsonify, request
+from sqlalchemy import distinct
 
+from app.database import db
 from image.models import Image
 from image.schemas import ImageSchema
 
@@ -28,3 +32,10 @@ def get_all():
     images = query.all()
     dumped = ImageSchema(many=True).dump(images)
     return jsonify(dumped), HTTPStatus.OK
+
+
+@image_api.route("/dimensions/", methods=['GET'])
+def get_all_dimensions():
+    dimensions = db.session.query(distinct(Image.dimensions)).all()
+    flat_list = functools.reduce(operator.iconcat, dimensions)
+    return jsonify(flat_list), HTTPStatus.OK
