@@ -4,11 +4,11 @@ from pathlib import Path
 
 class BaseConfig:
     DEBUG = False
-    PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % (os.path.join(PROJECT_ROOT, "db.sqlite3"))
+    PROJECT_ROOT = Path(__file__).parent
+    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", f'sqlite:///{PROJECT_ROOT.joinpath("db.sqlite3")}')
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     IMAGES_PATH = 'static/images'
-    ROOT_DIR = Path(__file__).parent.joinpath('app')
+    ROOT_DIR = PROJECT_ROOT.joinpath('app')
 
 
 class DevelopmentConfig(BaseConfig):

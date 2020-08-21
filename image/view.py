@@ -9,7 +9,7 @@ from sqlalchemy import distinct
 from app.database import db
 from image.models import ImageModel
 from image.schemas import ImageSchema
-from image.utils import handle_image_upload, save_image_files
+from image.utils import handle_image_upload, save_image_files, remove_image_file
 
 image_api = Blueprint('image_api', __name__)
 
@@ -52,8 +52,9 @@ def upload():
     if not description:
         return jsonify({'error': 'Description is required'}), HTTPStatus.BAD_REQUEST
 
-    image = Image.open(file)
     model = ImageModel(description=description)
+
+    image = Image.open(file)
     handle_image_upload(model, image)
 
     db.session.add(model)
@@ -62,3 +63,32 @@ def upload():
 
     dumped = ImageSchema().dump(model)
     return jsonify(dumped), HTTPStatus.CREATED
+
+
+@image_api.route("/<int:image_id>", methods=['PUT'])
+def upload_update(image_id=None):
+    file = request.files['file']
+    description = request.form.get('description')
+    if not file:
+        return jsonify({'error': 'File is required'}), HTTPStatus.BAD_REQUEST
+    if not description:
+        return jsonify({'error': 'Description is required'}), HTTPStatus.BAD_REQUEST
+
+    model = ImageModel.query.get(image_id)
+    if not model:
+        return jsonify({'error': 'Not found'}), HTTPStatus.NOT_FOUND
+    old_file = model.file_path
+    old_thumbnail = model.thumbnail_path
+
+    image = Image.open(file)
+    handle_image_upload(model, image)
+
+    db.session.add(model)
+    db.session.commit()
+    save_image_files(model, image)
+
+    remove_image_file(old_file)
+    remove_image_file(old_thumbnail)
+
+    dumped = ImageSchema().dump(model)
+    return jsonify(dumped), HTTPStatus.OK
