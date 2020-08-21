@@ -15,6 +15,7 @@ marshmallow = "*"
 pytest-regressions = "*"
 flask-script = "*"
 flask-migrate = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.8"

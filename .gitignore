@@ -3,3 +3,5 @@
 **/.pytest_cache/
 .idea/
 *.sqlite3
+app/static/images/*
+!app/static/images/.gitkeep
