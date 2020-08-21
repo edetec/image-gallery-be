@@ -1,0 +1,6 @@
+description: Photo 1 description
+dimensions: 1080x1920
+file_path: static/images/unic-file-name.png
+format: PNG
+id: 1
+thumbnail_path: static/images/thumbnail-unic-file-name.png
