@@ -20,3 +20,12 @@ def save_image_files(model, image):
     image.save(root_app.joinpath(model.file_path))
     image.thumbnail((100, 100))
     image.save(root_app.joinpath(model.thumbnail_path))
+
+
+def remove_image_file(file):
+    if file is None:
+        return
+    root_app = Path(current_app.config['ROOT_DIR'])
+    file_path = root_app.joinpath(file)
+    if file_path.is_file():
+        file_path.unlink(missing_ok=True)

@@ -43,6 +43,24 @@ def photo1():
         yield file, file_name
 
 
+@pytest.yield_fixture
+def photo2():
+    file_name = 'photo 1.png'
+    file_path = Path(__file__).parent.joinpath('assets', file_name)
+    with open(file_path, 'rb') as file:
+        yield file, file_name
+
+
+@pytest.yield_fixture
+def tmp_app_dir(test_client, tmpdir):
+    config = test_client.application.config
+    ROOT_DIR = config['ROOT_DIR']
+    config['ROOT_DIR'] = tmpdir
+    Path(tmpdir).joinpath(config['IMAGES_PATH']).mkdir(parents=True)
+    yield tmpdir
+    config['ROOT_DIR'] = ROOT_DIR
+
+
 def test_get_all_images(test_client, images, data_regression):
     response = test_client.get("/api/v1/image/")
     assert response.status_code == HTTPStatus.OK
@@ -63,12 +81,8 @@ def test_get_all_image_dimensions(test_client, images, data_regression):
     data_regression.check(response.json)
 
 
-def test_image_upload(test_client, photo1, tmpdir, monkeypatch, data_regression):
-    test_client.application.config['ROOT_DIR'] = tmpdir
-    images_dir = test_client.application.config['IMAGES_PATH']
-    Path(tmpdir).joinpath(images_dir).mkdir(parents=True)
-
-    monkeypatch.setattr(uuid, "uuid4", lambda : 'unic-file-name')
+def test_image_upload(test_client, photo1, tmp_app_dir, monkeypatch, data_regression):
+    monkeypatch.setattr(uuid, "uuid4", lambda: 'unique-file-name')
 
     response = test_client.post('/api/v1/image/', buffered=True,
                                 content_type='multipart/form-data',
@@ -78,6 +92,35 @@ def test_image_upload(test_client, photo1, tmpdir, monkeypatch, data_regression)
                                 })
     assert response.status_code == HTTPStatus.CREATED
     image_dict = response.json
-    assert Path(tmpdir).joinpath(image_dict['file_path']).exists()
-    assert Path(tmpdir).joinpath(image_dict['thumbnail_path']).exists()
+    assert Path(tmp_app_dir).joinpath(image_dict['file_path']).exists()
+    assert Path(tmp_app_dir).joinpath(image_dict['thumbnail_path']).exists()
+    data_regression.check(image_dict)
+
+
+def test_image_update(test_client, photo1, photo2, tmp_app_dir, monkeypatch, data_regression):
+    response = test_client.post('/api/v1/image/', buffered=True,
+                                content_type='multipart/form-data',
+                                data={
+                                    'description': 'Photo 2 description',
+                                    'file': photo1
+                                })
+    assert response.status_code == HTTPStatus.CREATED
+    image1_dict = response.json
+    assert Path(tmp_app_dir).joinpath(image1_dict['file_path']).exists()
+    assert Path(tmp_app_dir).joinpath(image1_dict['thumbnail_path']).exists()
+
+    image1_id = image1_dict['id']
+    monkeypatch.setattr(uuid, "uuid4", lambda: 'unique-file-name')
+    response = test_client.put(f'/api/v1/image/{image1_id}', buffered=True,
+                               content_type='multipart/form-data',
+                               data={
+                                   'description': 'Photo 2 description',
+                                   'file': photo2
+                               })
+    assert response.status_code == HTTPStatus.OK
+    image_dict = response.json
+    assert Path(tmp_app_dir).joinpath(image_dict['file_path']).exists()
+    assert Path(tmp_app_dir).joinpath(image_dict['thumbnail_path']).exists()
+    assert not Path(tmp_app_dir).joinpath(image1_dict['file_path']).exists()
+    assert not Path(tmp_app_dir).joinpath(image1_dict['thumbnail_path']).exists()
     data_regression.check(image_dict)
