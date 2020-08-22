@@ -3,6 +3,8 @@ from pathlib import Path
 
 from flask import current_app
 
+THUMBNAIL_DIMENSIONS = (200, 200)
+
 
 def handle_image_upload(model, image):
     image_path = current_app.config['IMAGES_PATH']
@@ -18,7 +20,7 @@ def handle_image_upload(model, image):
 def save_image_files(model, image):
     root_app = Path(current_app.config['ROOT_DIR'])
     image.save(root_app.joinpath(model.file_path))
-    image.thumbnail((100, 100))
+    image.thumbnail(THUMBNAIL_DIMENSIONS)
     image.save(root_app.joinpath(model.thumbnail_path))
 
 
