@@ -16,6 +16,7 @@ pytest-regressions = "*"
 flask-script = "*"
 flask-migrate = "*"
 pillow = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3.8"
