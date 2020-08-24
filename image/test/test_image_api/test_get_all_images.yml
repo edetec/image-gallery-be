@@ -1,18 +1,18 @@
 - description: description file 1
   dimensions: 800x600
   file_path: file1.jpg
-  format: JPG
+  format: jpg
   id: 1
   thumbnail_path: thumbnail/file1.jpg
 - description: description file 2
   dimensions: 800x600
   file_path: file2.jpg
-  format: JPG
+  format: jpg
   id: 2
   thumbnail_path: thumbnail/file2.jpg
 - description: description file 3
   dimensions: 900x600
   file_path: file3.jpg
-  format: JPG
+  format: jpg
   id: 3
   thumbnail_path: thumbnail/file3.jpg

@@ -13,19 +13,19 @@ def images(session):
         file_path="file1.jpg",
         thumbnail_path="thumbnail/file1.jpg",
         description="description file 1",
-        format="JPG",
+        format="jpg",
         dimensions="800x600")
     image2 = ImageModel(
         file_path="file2.jpg",
         thumbnail_path="thumbnail/file2.jpg",
         description="description file 2",
-        format="JPG",
+        format="jpg",
         dimensions="800x600")
     image3 = ImageModel(
         file_path="file3.jpg",
         thumbnail_path="thumbnail/file3.jpg",
         description="description file 3",
-        format="JPG",
+        format="jpg",
         dimensions="900x600")
     session.add(image1)
     session.add(image2)
