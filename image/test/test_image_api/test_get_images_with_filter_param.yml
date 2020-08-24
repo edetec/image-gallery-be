@@ -1,6 +1,6 @@
 - description: description file 1
   dimensions: 800x600
   file_path: file1.jpg
-  format: JPG
+  format: jpg
   id: 1
   thumbnail_path: thumbnail/file1.jpg
