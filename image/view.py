@@ -9,7 +9,7 @@ from sqlalchemy import distinct
 from app.database import db
 from image.models import ImageModel
 from image.schemas import ImageSchema
-from image.utils import handle_image_upload, save_image_files, remove_image_file
+from image.utils import handle_image_upload, save_image_files, remove_image_file, is_allowed_file, get_allowed_image_ext
 
 image_api = Blueprint('image_api', __name__)
 
@@ -45,16 +45,19 @@ def get_all_dimensions():
 
 @image_api.route("/", methods=['POST'])
 def upload():
-    file = request.files['file']
+    file = request.files.get('file')
     description = request.form.get('description')
     if not file:
         return jsonify({'error': 'File is required'}), HTTPStatus.BAD_REQUEST
     if not description:
         return jsonify({'error': 'Description is required'}), HTTPStatus.BAD_REQUEST
 
-    model = ImageModel(description=description)
-
     image = Image.open(file)
+    if not is_allowed_file(image):
+        ext_list = get_allowed_image_ext()
+        return jsonify({'error': f'This file is not one among allowed file types [{ext_list}]'}), HTTPStatus.BAD_REQUEST
+
+    model = ImageModel(description=description)
     handle_image_upload(model, image)
 
     db.session.add(model)
@@ -66,29 +69,35 @@ def upload():
 
 
 @image_api.route("/<int:image_id>", methods=['PUT'])
-def upload_update(image_id=None):
-    file = request.files['file']
+def upload_update(image_id):
+    file = request.files.get('file')
     description = request.form.get('description')
-    if not file:
-        return jsonify({'error': 'File is required'}), HTTPStatus.BAD_REQUEST
     if not description:
         return jsonify({'error': 'Description is required'}), HTTPStatus.BAD_REQUEST
 
     model = ImageModel.query.get(image_id)
     if not model:
         return jsonify({'error': 'Not found'}), HTTPStatus.NOT_FOUND
-    old_file = model.file_path
-    old_thumbnail = model.thumbnail_path
 
-    image = Image.open(file)
-    handle_image_upload(model, image)
+    model.description = description
+
+    if file is not None:
+        old_file = model.file_path
+        old_thumbnail = model.thumbnail_path
+        image = Image.open(file)
+        if not is_allowed_file(image):
+            ext_list = get_allowed_image_ext()
+            return (jsonify({'error': f'This file is not one among allowed file types [{ext_list}]'}),
+                    HTTPStatus.BAD_REQUEST)
+        handle_image_upload(model, image)
 
     db.session.add(model)
     db.session.commit()
-    save_image_files(model, image)
 
-    remove_image_file(old_file)
-    remove_image_file(old_thumbnail)
+    if file is not None:
+        save_image_files(model, image)
+        remove_image_file(old_file)
+        remove_image_file(old_thumbnail)
 
     dumped = ImageSchema().dump(model)
     return jsonify(dumped), HTTPStatus.OK
