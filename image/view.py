@@ -23,7 +23,7 @@ def apply_filters(query):
         filter_param = args['dimensions']
         query = query.filter(ImageModel.dimensions == filter_param)
     if 'format' in args:
-        filter_param = args['format']
+        filter_param = args['format'].lower()
         query = query.filter(ImageModel.format == filter_param)
     return query
 
